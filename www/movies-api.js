@@ -1,3 +1,4 @@
+var H90_BASE = "http://vip2.sharkhost.xyz/player_api.php?username=9143315182&password=7352465335";
 /* ================================================================
    H90 — MOVIES API v20.0 (Full Details, Fast Built-in Encryption)
    ================================================================
