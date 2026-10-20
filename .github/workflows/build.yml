@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v4
+      with:
+        packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+
+    - name: Install Cordova
+      run: npm install -g cordova
+
+    - name: Create Cordova Project and Build APK
+      run: |
+        cordova create build_app com.h90.app H90App
+        cd build_app
+        
+        rm -rf www/*
+        cp -r ../www/* www/
+        
+        cordova plugin add cordova-plugin-whitelist
+        cordova plugin add cordova-plugin-inappbrowser
+        
+        cordova platform add android
+        sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET" />\n    <application android:usesCleartextTraffic="true"|' platforms/android/app/src/main/AndroidManifest.xml
+        
+        cordova build android
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: H22H-App-APK
+        path: build_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
